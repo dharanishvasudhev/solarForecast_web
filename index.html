@@ -9,15 +9,41 @@
     async function getPrediction() {
       const status = document.getElementById("status");
       const output = document.getElementById("prediction");
-      status.innerText = "🔄 Calculating the current solar power prediction...";
+
+      // Initialize the status with emoji checklist format
+      status.innerHTML = `
+        <ul>
+          <li>🔄 Initializing...</li>
+          <li>🔌 API Call Made</li>
+          <li>🔍 Prediction Check</li>
+          <li>✅ Prediction Complete</li>
+        </ul>
+      `;
 
       try {
         const client = await Client.connect("vasudhevdharanish/solarForecast");
+        
+        // Update status after API call
+        const statusList = status.querySelectorAll("li");
+        statusList[1].innerHTML = "🔌 API Call Made ✅";
+
         const result = await client.predict("/predict", {}); // No input parameters
+
+        // Update status after prediction
+        statusList[2].innerHTML = "🔍 Prediction Check ✅";
         output.innerText = result.data[0];
-        status.innerText = "✅ Prediction Complete";
+
+        // Update status to complete
+        statusList[3].innerHTML = "✅ Prediction Complete";
+        
       } catch (error) {
-        status.innerText = "❌ Failed to get prediction.";
+        status.innerHTML = `
+          <ul>
+            <li>🔄 Initializing...</li>
+            <li>🔌 API Call Made ❌</li>
+            <li>❌ Error: ${error.message}</li>
+          </ul>
+        `;
         output.innerText = "Error: " + error.message;
       }
     }
@@ -98,6 +124,13 @@
     td, th {
       padding: 8px;
     }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      margin: 5px 0;
+    }
   </style>
 </head>
 <body>
@@ -108,9 +141,9 @@
     <h2>🔍 Process</h2>
     <p>
       This tool uses machine learning to predict the solar irradiance, temperature, and power for the current time (+15 minutes ahead).
-      The model is trained using historical solar data from previous years. 
+      The model is trained using historical solar data from previous years.
     </p>
-    <p id="status">Initializing...</p>
+    <div id="status">🔄 Initializing...</div>
   </div>
 
   <div class="section">
